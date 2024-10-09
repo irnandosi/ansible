@@ -1,6 +1,6 @@
 ---
 - name: Provision System Software
-  hosts: all
+  hosts: windowsgroup
   gather_facts: false
 
   tasks:
