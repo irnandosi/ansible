@@ -1,0 +1,29 @@
+---
+- name: Backup Ruckus Configuration
+  hosts: 192.168.11.254
+  gather_facts: no
+
+  vars:
+    backup_dir: "/path/to/backup/directory"
+
+  tasks:
+
+    - name: Ensure backup directory exists
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Backup Ruckus configuration
+      ansible.builtin.shell: |
+        show running-config
+      register: config_output
+
+    - name: Save configuration to a local file
+      ansible.builtin.copy:
+        content: "{{ config_output.stdout }}"
+        dest: "{{ backup_dir }}/ruckus_backup_{{ inventory_hostname }}_{{ ansible_date_time.iso8601 }}.txt"
+
+    - name: Notify about successful backup
+      ansible.builtin.debug:
+        msg: "Backup completed for {{ inventory_hostname }}"
