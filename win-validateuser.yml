@@ -4,11 +4,11 @@
   tasks:
     - name: Get details of all local users
       win_shell: |
-        Get-LocalUser | Select-Object Name,Enabled,PasswordExpired
+        Get-LocalUser | Select-Object Name,Enabled,PasswordExpired | ConvertTo-Json
       register: local_users
 
-    - name: Display users whose passwords have expired or accounts are disabled
+    - name: Parse and display users whose passwords have expired or accounts are disabled
       debug:
         msg: "{{ item.Name }} - Enabled: {{ item.Enabled }}, Password Expired: {{ item.PasswordExpired }}"
-      loop: "{{ local_users.stdout_lines | from_json }}"
-      when: item.PasswordExpired -eq $true or item.Enabled -eq $false
+      loop: "{{ local_users.stdout | from_json }}"
+      when: item.PasswordExpired == $true or item.Enabled == $false
