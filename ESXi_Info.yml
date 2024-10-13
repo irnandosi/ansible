@@ -1,47 +1,25 @@
 ---
-- name: ESXi Info #vmcloud.pl
+- name: Retrieve VMware Information
   hosts: localhost
+  gather_facts: false
+  collections:
+    - cloud.vmware_ops
   vars:
-    vcenter_server: "192.168.51.100"
+    vcenter_hostname: "192.168.51.100"
     vcenter_username: "administrator@vsphere.local"
     vcenter_password: "P@ssw0rd.1"
-    esxi_hostname: "192.168.51.14"
+    vm_name: "rhel8-test"  # Change to the VM you want to query
+
   tasks:
-    - name: Gather product version info for ESXi from vCenter
-      vmware_host_facts:
-          hostname: "{{ vcenter_server }}"
-          username: "{{ vcenter_username }}"
-          password: "{{ vcenter_password }}"
-          esxi_hostname: "{{ esxi_hostname }}"
-          validate_certs: no
-          schema: vsphere
-          properties:
-            - config.product
-            - config.option
-            - runtime.connectionState
-            - runtime.powerState
-            - hardware.memorySize
-            - hardware.cpuInfo.numCpuCores
-            - config.product.apiVersion
-            - overallStatus
- 
-      register: gather_host_facts_result
-    - name: Extract update level info from option properties
-      set_fact:
-        update_level_info: "{{ item.value }}"
-      loop: "{{ gather_host_facts_result.ansible_facts.config.option }}"
-      when:
-        - item.key == 'Misc.HostAgentUpdateLevel'
- 
-    - name: The output of Product, Version, Build, Update info for ESXi
+    - name: Gather information about a specific VM
+      cloud.vmware_ops.info:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        vm_name: "{{ vm_name }}"
+        validate_certs: false  # Set to true if you are using valid SSL certificates
+      register: vm_info
+
+    - name: Display gathered information
       debug:
-        msg:
-          - "ESXi    : {{ esxi_hostname }}"
-          - "Product : {{ gather_host_facts_result.ansible_facts.config.product.name }}"
-          - "Version : {{ gather_host_facts_result.ansible_facts.config.product.version }}"
-          - "Build   : {{ gather_host_facts_result.ansible_facts.config.product.build }}"
-          - "Update  : {{ update_level_info }}"
-          - "Runtime : {{ gather_host_facts_result.ansible_facts.runtime.connectionState }}"
-          - "State : {{ gather_host_facts_result.ansible_facts.runtime.powerState }}"
-          - "Memory Size : {{ gather_host_facts_result.ansible_facts.hardware.memorySize}}"
-          - "Cpu Cores : {{ gather_host_facts_result.ansible_facts.hardware.cpuInfo.numCpuCores}}"
+        var: vm_info
