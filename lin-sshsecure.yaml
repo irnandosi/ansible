@@ -1,27 +1,29 @@
+---
 - name: Secure SSH
-hosts: all
-become: true
-vars:
-  sshd_config_file: /etc/ssh/sshd_config
-tasks:
-  - name: Disable root login
-    lineinfile:
-      path: "{{ sshd_config_file }}"
-      regexp: "^PermitRootLogin"
-      line: "PermitRootLogin no"
-      backup: yes
-    notify: restart sshd
+  hosts: all
+  become: true
+  vars:
+    sshd_config_file: /etc/ssh/sshd_config
 
-  - name: Enforce SSH key passphrases
-    lineinfile:
-      path: "{{ sshd_config_file }}"
-      regexp: "^#PermitEmptyPasswords"
-      line: "PermitEmptyPasswords no"
-      backup: yes
-    notify: restart sshd
+  tasks:
+    - name: Disable root login
+      lineinfile:
+        path: "{{ sshd_config_file }}"
+        regexp: "^PermitRootLogin"
+        line: "PermitRootLogin no"
+        backup: yes
+      notify: restart sshd
 
-handlers:
-  - name: restart sshd
-    service:
-      name: sshd
-      state: restarted
+    - name: Enforce SSH key passphrases
+      lineinfile:
+        path: "{{ sshd_config_file }}"
+        regexp: "^#PermitEmptyPasswords"
+        line: "PermitEmptyPasswords no"
+        backup: yes
+      notify: restart sshd
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted
