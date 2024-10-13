@@ -24,6 +24,11 @@
         --fetch-remote-resources \
         /usr/share/xml/scap/ssg/content/{{ oscap_policy }}.xml
 
+    - name: generate playbook openscap
+      command: oscap xccdf generate fix \
+        --fix-type ansible \
+        --result-id "" /tmp/oscap-arf.xml > playbook.yml
+
     always:
     - name: download report
       fetch:
