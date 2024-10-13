@@ -1,6 +1,6 @@
 ---
 - name: Check and manage SSH service
-  hosts: LinuxGroup
+  hosts: all
   become: yes ## This allows Ansible to use sudo
   tasks:
     - name: Check SSH service status
