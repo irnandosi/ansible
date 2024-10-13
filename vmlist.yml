@@ -21,4 +21,4 @@
       register: vminfo
 
     - debug:
-        var: vm_info.virtual_machines
+        var: vminfo.virtual_machines
