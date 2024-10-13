@@ -3,7 +3,7 @@
   hosts: localhost
   gather_facts: false
   collections:
-    - cloud.vmware_ops
+    - community.vmware  # Correct collection
   vars:
     vcenter_hostname: "192.168.51.100"
     vcenter_username: "administrator@vsphere.local"
@@ -12,14 +12,14 @@
 
   tasks:
     - name: Gather information about a specific VM
-      cloud.vmware_ops.info:
+      community.vmware.vmware_vm_info:
         hostname: "{{ vcenter_hostname }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
         vm_name: "{{ vm_name }}"
-        validate_certs: false  # Set to true if you are using valid SSL certificates
+        validate_certs: false
       register: vm_info
 
     - name: Display gathered information
-      debug:
+      ansible.builtin.debug:
         var: vm_info
