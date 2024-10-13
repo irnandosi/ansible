@@ -2,10 +2,10 @@
 - name: ESXi Info #vmcloud.pl
   hosts: localhost
   vars:
-    vcenter_server: "vCenter_IP_or_hostname"
+    vcenter_server: "192.168.51.100"
     vcenter_username: "administrator@vsphere.local"
-    vcenter_password: "password"
-    esxi_hostname: "ESXi_IP_or_hostname"
+    vcenter_password: "P@ssw0rd.1"
+    esxi_hostname: "192.168.14"
   tasks:
     - name: Gather product version info for ESXi from vCenter
       community.vmware.vmware_host_facts:
