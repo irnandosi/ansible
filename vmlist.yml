@@ -1,0 +1,24 @@
+---
+- name: Get list of all VMs from vCenter
+  hosts: localhost
+  gather_facts: false
+  collections:
+    - community.vmware
+  vars:
+    vcenter_hostname: "192.168.51.100"
+    vcenter_username: "administrator@vsphere.local"
+    vcenter_password: "P@ssw0rd.1"
+    validate_certs: false  # Set to true if using valid certificates
+
+  tasks:
+    - name: Gather information about all VMs
+      community.vmware.vmware_vm_info:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+      register: vm_info
+
+    - name: Display list of all VMs
+      ansible.builtin.debug:
+        var: vm_info.virtual_machines
