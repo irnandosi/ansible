@@ -4,7 +4,7 @@
   become: yes ## This allows Ansible to use sudo
   tasks:
     - name: Check SSH service status
-      command: service ssh status
+      command: systemctl status sshd
       register: ssh_status
       ignore_errors: yes
 
