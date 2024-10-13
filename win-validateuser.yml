@@ -1,12 +1,12 @@
 ---
 - name: Check password expiration for Windows users
-  hosts: windows
+  hosts: windowsgroup
   gather_facts: no
   tasks:
 
     - name: Get password expiration information
       win_shell: |
-        $user = 'USERNAME'  # Replace 'USERNAME' with the actual username you want to check
+        $user = 'imid'  # Replace 'USERNAME' with the actual username you want to check
         $userObj = Get-ADUser -Identity $user -Properties "msDS-UserPasswordExpiryTimeComputed"
         if ($userObj) {
           [datetime]::FromFileTime($userObj."msDS-UserPasswordExpiryTimeComputed").ToString("yyyy-MM-dd HH:mm:ss")
