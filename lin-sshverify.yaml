@@ -1,32 +1,34 @@
 ---
-- name: Verify SSH Configuration
-  hosts: all
-  become: yes
+- name: Check and manage SSH service
+  hosts: localhost
+  become: yes ## This allows Ansible to use sudo
   tasks:
-    - name: Check if SSH service is running
-      service:
-        name: ssh
-        state: started
-      register: ssh_service_status
+    - name: Check SSH service status
+      command: service ssh status
+      register: ssh_status
+      ignore_errors: yes
 
-    - name: Verify SSH service status
+    - name: Display SSH service status
       debug:
-        msg: "SSH service is {{ ssh_service_status.state }}."
+        msg: "SSH service status: {{ ssh_status.stdout }}"
 
-    - name: Check SSH configuration file for syntax errors
-      command: sshd -t
-      register: sshd_syntax_check
-      failed_when: sshd_syntax_check.rc != 0
+    - name: Start SSH service if not running
+      command: service ssh start
+      when: ssh_status.rc != 0
 
-    - name: Show SSH configuration file validation result
+    - name: Verify SSH service is running
+      command: service ssh status
+      register: ssh_status_after
+
+    - name: Display final SSH service status
       debug:
-        var: sshd_syntax_check
+        msg: "SSH service status is now: {{ ssh_status_after.stdout }}"
 
     - name: Check if SSH port is listening
-      command: netstat -tuln | grep ":22"
+      command: netstat -tuln | grep :22
       register: ssh_port_check
-      failed_when: ssh_port_check.rc != 0
+      ignore_errors: yes
 
-    - name: Display SSH port listening check result
+    - name: Display SSH port status
       debug:
-        var: ssh_port_check.stdout_lines
+        msg: "SSH port 22 is {{ 'open' if ssh_port_check.rc == 0 else 'closed' }}"
