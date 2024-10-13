@@ -17,8 +17,8 @@
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
         validate_certs: false
+      delegate_to: localhost
       register: vm_info
 
-    - name: Display list of all VMs
-      ansible.builtin.debug:
+    - debug:
         var: vm_info.virtual_machines
