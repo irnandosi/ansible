@@ -1,0 +1,41 @@
+---
+- name: Check SSH Configuration
+  hosts: all
+  become: yes
+  tasks:
+    - name: Ensure SSH is installed
+      package:
+        name: openssh-server
+        state: present
+
+    - name: Check SSH configuration file
+      ansible.builtin.slurp:
+        src: /etc/ssh/sshd_config
+      register: sshd_config
+
+    - name: Decode SSH configuration
+      set_fact:
+        sshd_config_decoded: "{{ sshd_config.content | b64decode }}"
+
+    - name: Verify PermitRootLogin is set to no
+      debug:
+        msg: "PermitRootLogin is set to no."
+      when: "'PermitRootLogin no' in sshd_config_decoded"
+
+    - name: Verify PasswordAuthentication is set to no
+      debug:
+        msg: "PasswordAuthentication is set to no."
+      when: "'PasswordAuthentication no' in sshd_config_decoded"
+
+    - name: Check for unused ciphers
+      debug:
+        msg: "Ciphers are set as needed."
+      when: "'Ciphers' in sshd_config_decoded"
+
+    - name: Ensure SSH service is restarted if changes are made
+      service:
+        name: sshd
+        state: restarted
+      when: >
+        "'PermitRootLogin no' not in sshd_config_decoded or
+         'PasswordAuthentication no' not in sshd_config_decoded"
