@@ -13,11 +13,11 @@
         msg: "SSH service status: {{ ssh_status.stdout }}"
 
     - name: Start SSH service if not running
-      command: service ssh start
+      command: systemctl start sshd
       when: ssh_status.rc != 0
 
     - name: Verify SSH service is running
-      command: service ssh status
+      command: systemctl status sshd
       register: ssh_status_after
 
     - name: Display final SSH service status
