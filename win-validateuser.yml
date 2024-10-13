@@ -1,6 +1,6 @@
 ---
 - name: Check for expired users on Windows
-  hosts: windows
+  hosts: windowsgroup
   tasks:
     - name: Get details of all local users
       win_shell: |
