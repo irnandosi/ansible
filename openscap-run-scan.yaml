@@ -3,7 +3,7 @@
 
   vars:
     oscap_profile: ospp
-    oscap_policy: ssg-rhel8-dss
+    oscap_policy: ssg-rhel8-ds
 
   tasks:
 
