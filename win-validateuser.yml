@@ -1,20 +1,14 @@
 ---
-- name: Check password expiration for Windows users
-  hosts: windowsgroup
-  gather_facts: no
+- name: Check for expired users on Windows
+  hosts: windows
   tasks:
-
-    - name: Get password expiration information
+    - name: Get details of all local users
       win_shell: |
-        $user = 'imid'  # Replace 'USERNAME' with the actual username you want to check
-        $userObj = Get-ADUser -Identity $user -Properties "msDS-UserPasswordExpiryTimeComputed"
-        if ($userObj) {
-          [datetime]::FromFileTime($userObj."msDS-UserPasswordExpiryTimeComputed").ToString("yyyy-MM-dd HH:mm:ss")
-        } else {
-          "User not found"
-        }
-      register: password_expiry_info
+        Get-LocalUser | Select-Object Name,Enabled,PasswordExpired
+      register: local_users
 
-    - name: Display password expiration info
+    - name: Display users whose passwords have expired or accounts are disabled
       debug:
-        var: password_expiry_info.stdout
+        msg: "{{ item.Name }} - Enabled: {{ item.Enabled }}, Password Expired: {{ item.PasswordExpired }}"
+      loop: "{{ local_users.stdout_lines | from_json }}"
+      when: item.PasswordExpired -eq $true or item.Enabled -eq $false
