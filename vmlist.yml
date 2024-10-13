@@ -16,6 +16,7 @@
         hostname: "{{ vcenter_hostname }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
+        folder: imid-dc/vm
         validate_certs: false
       delegate_to: localhost
       register: vm_info
