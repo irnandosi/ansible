@@ -5,7 +5,7 @@
     vcenter_server: "192.168.51.100"
     vcenter_username: "administrator@vsphere.local"
     vcenter_password: "P@ssw0rd.1"
-    esxi_hostname: "192.168.14"
+    esxi_hostname: "192.168.51.14"
   tasks:
     - name: Gather product version info for ESXi from vCenter
       vmware_host_facts:
