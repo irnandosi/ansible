@@ -1,0 +1,55 @@
+# Copyright 2021-2024 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause
+---
+# Get VM IP address on ESXi host by esxcli command
+# Paramters:
+#   vm_world_id: VM world ID got from task 'vm_get_world_id.yml'.
+#   vm_get_ip_timeout: the timeout in seconds to get VM IP address.
+#     default value is 300.
+# Return:
+#   vm_guest_ip: VM guest IPv4 address
+#
+- name: "Check VM world ID of '{{ vm_name }}' is not empty"
+  ansible.builtin.assert:
+    that:
+      - vm_world_id is defined
+      - vm_world_id
+    fail_msg: "Can not get VM IP address by esxcli command if VM world ID is not defined or empty."
+
+- name: "Set facts for getting primary network adapter IPv4 address for VM '{{ vm_name }}'"
+  ansible.builtin.set_fact:
+    vm_guest_mac_ipv4: "{{ {vm_primary_nic_mac: ''} }}"
+    esxcli_cmd: "esxcli network vm port list -w '{{ vm_world_id }}' | awk '/MAC Address|IP Address/ {key=$3; getline; print key \": \" $3;}' | grep '{{ vm_primary_nic_mac }}'"
+
+- name: "Wait for getting VM '{{ vm_name }}' primary IP address on ESXi '{{ esxi_hostname }}'"
+  ansible.builtin.shell: "{{ esxcli_cmd }}"
+  delegate_to: "{{ esxi_hostname }}"
+  register: get_vm_ip_esxcli
+  until:
+    - get_vm_ip_esxcli.stdout is defined
+    - get_vm_ip_esxcli.stdout
+    - (get_vm_ip_esxcli.stdout | from_yaml)[vm_primary_nic_mac] is defined
+    - (get_vm_ip_esxcli.stdout | from_yaml)[vm_primary_nic_mac] != '0.0.0.0'
+    - (get_vm_ip_esxcli.stdout | from_yaml)[vm_primary_nic_mac] is not match('^169.254.')
+  retries: "{{ ((vm_get_ip_timeout | default(300) | int) / 5) | int }}"
+  delay: 5
+  ignore_errors: true
+  changed_when: false
+
+- name: "Set the fact of primary MAC address and IP address for VM '{{ vm_name }}'"
+  ansible.builtin.set_fact:
+    vm_guest_mac_ipv4: "{{ get_vm_ip_esxcli.stdout | from_yaml }}"
+  when:
+    - get_vm_ip_esxcli.failed is defined
+    - not get_vm_ip_esxcli.failed
+
+- name: "Print the fact of primary MAC and IPv4 address for VM '{{ vm_name }}'"
+  ansible.builtin.debug: var=vm_guest_mac_ipv4
+
+- name: "Set fact of VM guest IP with primary IP for VM '{{ vm_name }}'"
+  ansible.builtin.set_fact:
+    vm_guest_ip: "{{ vm_guest_mac_ipv4[vm_primary_nic_mac] }}"
+
+- name: "Print VM guest IP address"
+  ansible.builtin.debug:
+    msg: "Get VM '{{ vm_name }}' IP address using esxcli command: {{ vm_guest_ip }}"
