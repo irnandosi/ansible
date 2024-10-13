@@ -1,0 +1,11 @@
+---
+- name: Get list of local users on Windows
+  hosts: windowsgroup
+  tasks:
+    - name: List local users
+      win_shell: "Get-LocalUser | Select-Object Name"
+      register: local_users
+
+    - name: Show local users
+      debug:
+        var: local_users.stdout_lines
