@@ -2,8 +2,7 @@
 - name: Get list of all VMs from vCenter
   hosts: localhost
   gather_facts: false
-  collections:
-    - community.vmware
+  
   vars:
     vcenter_hostname: "192.168.51.100"
     vcenter_username: "administrator@vsphere.local"
@@ -12,14 +11,14 @@
 
   tasks:
     - name: Gather information about all VMs
-      community.vmware.vmware_vm_info:
+      vmware_vm_info:
         hostname: "{{ vcenter_hostname }}"
         username: "{{ vcenter_username }}"
         password: "{{ vcenter_password }}"
         folder: /imid-dc/vm
         validate_certs: false
       delegate_to: localhost
-      register: vm_info
+      register: vminfo
 
     - debug:
         var: vm_info.virtual_machines
