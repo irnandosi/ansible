@@ -1,6 +1,6 @@
 ---
 - name: Gather information from VMs
-  hosts: all
+  hosts: vmware
   gather_facts: yes  # Automatically gather basic facts (OS, IP, etc.)
   tasks:
     - name: Gather detailed information about the system
