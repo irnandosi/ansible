@@ -6,33 +6,34 @@
     oscap_policy: ssg-rhel8-ds
 
   tasks:
+    - name: Install OpenSCAP scanner
+      package:
+        name: "{{ item }}"
+        state: latest
+      loop:
+        - openscap-scanner
+        - scap-security-guide
 
-  - name: install openscap scanner
-    package:
-      name: "{{ item }}"
-      state: latest
-    with_items:
-    - openscap-scanner
-    - scap-security-guide
+    - block:
+        - name: Run OpenSCAP
+          command: >
+            oscap xccdf eval
+            --profile {{ oscap_profile }}
+            --results /tmp/oscap-arf.xml
+            --report /tmp/oscap-report.html
+            --fetch-remote-resources
+            /usr/share/xml/scap/ssg/content/{{ oscap_policy }}.xml
 
-  - block:
-    - name: run openscap
-      command: oscap xccdf eval \
-        --profile {{ oscap_profile }} \
-        --results /tmp/oscap-arf.xml \
-        --report /tmp/oscap-report.html \
-        --fetch-remote-resources \
-        /usr/share/xml/scap/ssg/content/{{ oscap_policy }}.xml
-        
-  - block:
-    - name: generate playbook openscap
-      command: oscap xccdf generate fix \
-        --fix-type ansible \
-        --result-id "" /tmp/oscap-arf.xml > playbook.yml
+        - name: Generate playbook for OpenSCAP
+          command: >
+            oscap xccdf generate fix
+            --fix-type ansible
+            --result-id ""
+            /tmp/oscap-arf.xml > playbook.yml
 
-    always:
-    - name: download report
-      fetch:
-        src: /tmp/oscap-report.html
-        dest: ../oscap-reports/{{ inventory_hostname }}.html
-        flat: yes
+    - always:
+        - name: Download report
+          fetch:
+            src: /tmp/oscap-report.html
+            dest: ../oscap-reports/{{ inventory_hostname }}.html
+            flat: yes
