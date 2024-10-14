@@ -17,7 +17,7 @@
 
   - block:
     - name: run openscap
-      command: oscap xccdf eval \ 
+      ansible.builtin.command: oscap xccdf eval \ 
         --profile {{ oscap_profile }} \ 
         --results /tmp/oscap-arf.xml \ 
         --report /tmp/oscap-report.html \ 
@@ -27,7 +27,7 @@
       register: scap_cmd 
 
     - name: generate playbook openscap
-      command: oscap xccdf generate fix \
+      ansible.builtin.command: oscap xccdf generate fix \
         --fix-type ansible \
         --result-id "" /tmp/oscap-arf.xml \
         --output /tmp/oscap-remediation.yml
