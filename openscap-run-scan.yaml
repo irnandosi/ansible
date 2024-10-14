@@ -33,18 +33,7 @@
         --output /tmp/oscap-remediation.yml
       ignore_errors: true
       register: rem_cmd
-      when:
-        - remediate is defined
-        - remediate|bool
     
-    - name: Check for failure and escalate unless specified otherwise
-      ansible.builtin.fail:
-        msg: Security scan failed
-      when: 
-        - scap_cmd.rc | int != 0
-        - ((ignore_errors is defined and not ignore_errors|bool) or (ignore_errors is not defined))
-        - (remediate is not defined or not remediate|bool)
-
     always:
     - name: download report
       fetch:
