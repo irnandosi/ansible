@@ -6,6 +6,7 @@
     dest_host: "192.168.51.21"
     source_path: "/var/backups/"
     dest_path: "/restore/"
+    source_host: "192.168.30.17"
   tasks:
     - name: Rsync push to destination host
       ansible.posix.synchronize:
