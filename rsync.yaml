@@ -11,6 +11,7 @@
       ansible.posix.synchronize:
         src: "{{ source_path }}"
         dest: "{{ dest_host }}:{{ dest_path }}"
-        mode: push
+        mode: pull
+        rsync_path: "rsync"
         archive: true
-        compress: true
+      delegate_to: "{{ source_host }}"
