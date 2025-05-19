@@ -1,6 +1,6 @@
 ---
 - name: Transfer file backup dari VM 1 ke VM 2
-  hosts: backup
+  hosts: restore
   become: true
   vars:
     source_host: "192.168.30.17"
