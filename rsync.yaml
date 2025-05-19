@@ -3,13 +3,16 @@
   hosts: restore
   become: true
   vars:
-    dest_host: "192.168.51.21"
+    source_host: "192.168.30.17"
     source_path: "/var/backups/"
     dest_path: "/restore/"
   tasks:
-    - name: Push directory to remote destination
+    - name: Pull directory from source host
       ansible.posix.synchronize:
         src: "{{ source_path }}"
-        dest: "{{ dest_host }}:{{ dest_path }}"
-        mode: push
+        dest: "{{ dest_path }}"
+        mode: pull
+        rsync_path: "rsync"
         archive: true
+      delegate_to: "{{ source_host }}"
+      
