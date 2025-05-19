@@ -1,18 +1,16 @@
 ---
-- name: Transfer file backup dari VM 1 ke VM 2
-  hosts: restore
+- name: Push /var/backups from 192.168.30.17 to 192.168.51.21:/restore
+  hosts: backup
   become: true
   vars:
-    source_host: "192.168.30.17"
+    dest_host: "192.168.51.21"
     source_path: "/var/backups/"
     dest_path: "/restore/"
   tasks:
-    - name: Pull directory from source host
+    - name: Rsync push to destination host
       ansible.posix.synchronize:
         src: "{{ source_path }}"
-        dest: "{{ dest_path }}"
-        mode: pull
-        rsync_path: "rsync"
+        dest: "{{ dest_host }}:{{ dest_path }}"
+        mode: push
         archive: true
-      delegate_to: "{{ source_host }}"
-      
+        compress: true
